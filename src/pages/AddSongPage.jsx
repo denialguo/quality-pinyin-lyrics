@@ -76,8 +76,18 @@ const AddSongPage = () => {
     if (loading) return; 
     setLoading(true);
     
-    // Insert into Supabase
-    const { error } = await supabase.from('songs').insert([formData]);
+    // 1. Create the slug automatically
+    const generatedSlug = formData.title
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '') // Remove special chars
+      .replace(/[\s_-]+/g, '-') // Replace spaces with dashes
+      .replace(/^-+|-+$/g, ''); // Trim dashes
+
+    // 2. Insert ONE time with the slug included
+    const { error } = await supabase
+      .from('songs')
+      .insert([{ ...formData, slug: generatedSlug }]);
 
     if (error) {
       alert('Error adding song: ' + error.message);

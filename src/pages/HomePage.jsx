@@ -59,10 +59,12 @@ const HomePage = () => {
       <nav className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-            <div className="bg-gradient-to-tr from-emerald-400 to-cyan-500 p-2 rounded-lg">
-              <Music className="text-slate-900 w-5 h-5" />
-            </div>
-            <span className="font-bold text-xl tracking-tight text-white">C-Pop Lyrics</span>
+            <img 
+              src="/logo_t.png" 
+              alt="Quality Pinyin Logo" 
+              className="w-10 h-10 rounded-lg object-cover" 
+            />
+            <span className="font-bold text-xl tracking-tight text-white">Quality Pinyin Lyrics</span>
           </div>
 
           <div className="hidden md:flex flex-1 max-w-lg mx-8 relative">
