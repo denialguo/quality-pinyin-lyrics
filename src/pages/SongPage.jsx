@@ -54,7 +54,7 @@ const SongPage = () => {
               <ArrowLeft className="w-4 h-4 mr-2" /> Back to Library
             </button>
             <h1 className="text-4xl md:text-6xl font-black mb-2 tracking-tight">{song.title}</h1>
-            <p className="text-2xl text-emerald-400 font-medium">{song.artist} <span className="text-slate-500 text-lg ml-2">{song.artist_chinese}</span></p>
+            <p className="text-2xl text-primary font-medium">{song.artist} <span className="text-slate-500 text-lg ml-2">{song.artist_chinese}</span></p>
           </div>
         </div>
       </div>
@@ -67,7 +67,7 @@ const SongPage = () => {
              <h3 className="text-xl font-bold text-slate-400 flex items-center gap-2">
               <Music className="w-5 h-5" /> Lyrics
              </h3>
-             <button onClick={() => navigate(`/edit/${id}`)} className="text-xs text-slate-500 hover:text-emerald-400">Suggest Edit</button>
+             <button onClick={() => navigate(`/edit/${id}`)} className="text-xs text-slate-500 hover:text-primary">Suggest Edit</button>
            </div>
            
            <div className="space-y-4">
@@ -87,7 +87,7 @@ const SongPage = () => {
                 <div key={index} className="group hover:bg-slate-900/80 p-6 rounded-2xl transition-all border border-transparent hover:border-slate-800">
                   {/* Only render Pinyin div if pinyin exists */}
                   {pinyin && (
-                    <div className="text-sm text-emerald-400 font-mono mb-2 tracking-wide opacity-80 group-hover:opacity-100">
+                    <div className="text-sm text-primary font-mono mb-2 tracking-wide opacity-80 group-hover:opacity-100">
                       {pinyin}
                     </div>
                   )}
@@ -152,7 +152,7 @@ const SongPage = () => {
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-slate-500">Genre</span>
-                  <span className="text-emerald-400 font-bold uppercase">{song.category || "Pop"}</span>
+                  <span className="text-primary font-bold uppercase">{song.category || "Pop"}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Added By</span>
