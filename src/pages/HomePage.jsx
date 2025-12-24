@@ -56,7 +56,7 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
             <img 
-              src="/logo_t.png" 
+              src="/logo_inverse.svg" 
               alt="Quality Pinyin Logo" 
               className="w-10 h-10 rounded-lg object-cover" 
             />
@@ -149,8 +149,8 @@ const HomePage = () => {
                 <SongCard 
                   title={song.title} 
                   artist={song.artist}
-                  difficulty={song.category || "Pop"} 
-                  coverUrl={song.cover_url || "https://i.scdn.co/image/ab67616d0000b273a0050d2495d46777c223c038"}
+                  tags={song.tags} // <--- Pass the new array!
+                  coverUrl={song.cover_url}
                   likes="0" 
                 />
               </div>

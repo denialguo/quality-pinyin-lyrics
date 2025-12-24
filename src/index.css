@@ -2,16 +2,19 @@
 
 /* Define theme colors using Tailwind v4 @theme syntax */
 @theme {
-  --color-primary: rgb(16 185 129);
+  /* CHANGED: Default is now Blue (Blue-500) */
+  --color-primary: rgb(59 130 246); 
 }
 
 /* Theme color overrides using CSS custom properties */
 :root {
-  --color-primary-rgb: 16 185 129;
+  /* CHANGED: Default RGB values for Blue */
+  --color-primary-rgb: 59 130 246;
 }
 
+/* Keep the other themes as options if you want, or delete them */
 [data-theme="emerald"] {
-  --color-primary-rgb: 16 185 129;
+  --color-primary-rgb: 16 185 129; /* The green you hate */
 }
 
 [data-theme="cyan"] {
@@ -29,7 +32,6 @@
 [data-theme="amber"] {
   --color-primary-rgb: 245 158 11;
 }
-
 /* Custom utility classes - simple approach */
 .bg-primary {
   background-color: rgb(var(--color-primary-rgb));
