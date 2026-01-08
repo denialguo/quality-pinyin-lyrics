@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
-import TagInput from '../components/TagInput'; // <--- IMPORT THIS
+import TagInput from '../components/TagInput';
 
 // --- HELPER COMPONENT: Auto-Growing Textarea ---
 const LyricsEditor = ({ label, name, value, onChange, placeholder }) => {
@@ -24,7 +24,8 @@ const LyricsEditor = ({ label, name, value, onChange, placeholder }) => {
         {label} <span className="text-xs font-normal text-slate-600">({lineCount} lines)</span>
       </label>
       
-      <div className="relative flex border border-slate-700 rounded-xl overflow-hidden bg-slate-900 focus-within:border-emerald-500 transition-colors">
+      {/* FIXED: Changed focus color from Emerald to Blue */}
+      <div className="relative flex border border-slate-700 rounded-xl overflow-hidden bg-slate-900 focus-within:border-blue-500 transition-colors">
         <div className="bg-slate-800 text-slate-500 text-right pr-3 pt-4 font-mono text-sm leading-6 select-none w-10 flex-shrink-0 border-r border-slate-700">
           <pre>{lineNumbers}</pre>
         </div>
@@ -46,13 +47,11 @@ const LyricsEditor = ({ label, name, value, onChange, placeholder }) => {
 const AddSongPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  
-  // New State for Tags
-  const [tags, setTags] = useState([]);
+  const [tags, setTags] = useState([]); // Tags State
 
   const [formData, setFormData] = useState({
     title: '', artist: '', artist_chinese: '', cover_url: '', youtube_url: '', 
-    lyrics_chinese: '', lyrics_pinyin: '', lyrics_english: ''
+    lyrics_chinese: '', lyrics_pinyin: '', lyrics_english: '', translation_credit: ''
   });
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -67,13 +66,13 @@ const AddSongPage = () => {
       .toLowerCase().trim()
       .replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
 
-    // Insert with TAGS array
+    // Insert with TAGS and TRANSLATION_CREDIT
     const { error } = await supabase
       .from('songs')
       .insert([{ 
         ...formData, 
         slug: generatedSlug,
-        tags: tags // <--- Save the array here
+        tags: tags
       }]);
 
     if (error) {
@@ -94,40 +93,57 @@ const AddSongPage = () => {
         <h1 className="text-3xl font-bold text-white mb-8">Add New Song</h1>
 
         <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Metadata Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
+            
+            {/* COLUMN 1 */}
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="text-slate-400 text-sm">Song Title *</label>
-                <input name="title" onChange={handleChange} className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-white w-full" required />
+                <input name="title" onChange={handleChange} className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-white w-full focus:border-blue-500 outline-none" required />
               </div>
               <div className="space-y-2">
                 <label className="text-slate-400 text-sm">Artist (English) *</label>
-                <input name="artist" onChange={handleChange} className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-white w-full" required />
+                <input name="artist" onChange={handleChange} className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-white w-full focus:border-blue-500 outline-none" required />
               </div>
               
-              {/* REPLACED: Genre Dropdown is gone. Now using TagInput */}
+              {/* Tags Input */}
               <div className="space-y-2">
                 <label className="text-slate-400 text-sm">Tags (Genre, Mood, Era)</label>
-                <TagInput tags={tags} setTags={setTags} placeholder="Type tag & hit Enter (e.g. Pop, Sad, 2000s)" />
+                <TagInput tags={tags} setTags={setTags} placeholder="Type tag & hit Enter..." />
+              </div>
+
+              {/* FIXED: Moved Translation Credit INSIDE this column so the grid doesn't break */}
+              <div className="space-y-2">
+                <label className="text-slate-400 text-sm">Translation Credit (Optional)</label>
+                <input 
+                  name="translation_credit" 
+                  placeholder="e.g. Translated by @YourName or Source: Genius.com"
+                  value={formData.translation_credit || ''} 
+                  onChange={handleChange} 
+                  className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-white w-full placeholder:text-slate-600 focus:border-blue-500 outline-none" 
+                />
               </div>
             </div>
             
+            {/* COLUMN 2 */}
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="text-slate-400 text-sm">Artist (Chinese) - Optional</label>
-                <input name="artist_chinese" onChange={handleChange} className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-white w-full" />
+                <input name="artist_chinese" onChange={handleChange} className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-white w-full focus:border-blue-500 outline-none" />
               </div>
               <div className="space-y-2">
                 <label className="text-slate-400 text-sm">Cover Image URL</label>
-                <input name="cover_url" onChange={handleChange} className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-white w-full" />
+                <input name="cover_url" onChange={handleChange} className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-white w-full focus:border-blue-500 outline-none" />
               </div>
               <div className="space-y-2">
                 <label className="text-slate-400 text-sm">YouTube Video URL</label>
-                <input name="youtube_url" onChange={handleChange} className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-white w-full" />
+                <input name="youtube_url" onChange={handleChange} className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-white w-full focus:border-blue-500 outline-none" />
               </div>
             </div>
           </div>
 
+          {/* Lyrics Editors */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
              <LyricsEditor label="Chinese Characters *" name="lyrics_chinese" value={formData.lyrics_chinese} onChange={handleChange} placeholder="Line 1&#10;Line 2..." />
              <LyricsEditor label="Pinyin" name="lyrics_pinyin" value={formData.lyrics_pinyin} onChange={handleChange} placeholder="Line 1 pinyin..." />
@@ -135,7 +151,8 @@ const AddSongPage = () => {
           </div>
 
           <div className="fixed bottom-6 right-6 z-50">
-             <button disabled={loading} className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-8 rounded-full shadow-2xl flex items-center gap-2 transition-transform hover:scale-105">
+             {/* FIXED: Changed bg-emerald-500 to bg-blue-600 */}
+             <button disabled={loading} className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-full shadow-2xl flex items-center gap-2 transition-transform hover:scale-105">
               <Save className="w-5 h-5" /> {loading ? "Saving..." : "Publish Song"}
             </button>
           </div>

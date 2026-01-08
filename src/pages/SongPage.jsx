@@ -2,31 +2,30 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Play, Music, Youtube } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
+import { Helmet } from 'react-helmet-async';
 
 const SongPage = () => {
-  const { slug } = useParams(); // Change 'id' to 'slug'
+  const { slug } = useParams();
   const navigate = useNavigate();
   const [song, setSong] = useState(null);
   const [loading, setLoading] = useState(true);
 
-useEffect(() => {
-  const fetchSong = async () => {
-    // 3. Search by the 'slug' column
-    const { data, error } = await supabase
-      .from('songs')
-      .select('*')
-      .eq('slug', slug) // <--- The Important Change
-      .single();
-      
-    if (data) setSong(data);
-    setLoading(false);
-  };
-  fetchSong();
-}, [slug]);
+  useEffect(() => {
+    const fetchSong = async () => {
+      const { data, error } = await supabase
+        .from('songs')
+        .select('*')
+        .eq('slug', slug)
+        .single();
+        
+      if (data) setSong(data);
+      setLoading(false);
+    };
+    fetchSong();
+  }, [slug]);
 
   const getYoutubeId = (url) => {
     if (!url) return null;
-    // FIXED THE TYPO HERE: Removed random 'HV' characters
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : null;
@@ -40,13 +39,16 @@ useEffect(() => {
   const pinyinLines = song.lyrics_pinyin ? song.lyrics_pinyin.split('\n') : [];
   const englishLines = song.lyrics_english ? song.lyrics_english.split('\n') : [];
   
-  // Calculate max lines to iterate safely
   const maxLines = Math.max(chineseLines.length, pinyinLines.length, englishLines.length);
   const lines = Array.from({ length: maxLines });
 
   return (
     <div className="min-h-screen bg-slate-950 text-white pb-20">
-      
+      <Helmet>
+        <title>{song.title} - {song.artist} | CN Lyric Hub</title>
+        <meta name="description" content={`Lyrics, Pinyin, and English translation for ${song.title} by ${song.artist}.`} />
+      </Helmet>
+
       {/* 1. HERO SECTION */}
       <div className="relative h-[50vh] overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900/50 to-slate-950 z-10" />
@@ -82,30 +84,21 @@ useEffect(() => {
               const pinyin = pinyinLines[index] || "";
               const english = englishLines[index] || "";
               
-              // SMART RENDER: If all 3 are empty, render a spacer instead of a card
               const isEmpty = !line.trim() && !pinyin.trim() && !english.trim();
-              
-              if (isEmpty) {
-                return <div key={index} className="h-6"></div>;
-              }
+              if (isEmpty) return <div key={index} className="h-6"></div>;
 
               return (
                 <div key={index} className="group hover:bg-slate-900/80 p-6 rounded-2xl transition-all border border-transparent hover:border-slate-800">
-                  {/* Only render Pinyin div if pinyin exists */}
                   {pinyin && (
                     <div className="text-sm text-primary font-mono mb-2 tracking-wide opacity-80 group-hover:opacity-100">
                       {pinyin}
                     </div>
                   )}
-                  
-                  {/* Only render Chinese div if Chinese exists */}
                   {line && (
                     <div className="text-3xl md:text-4xl font-bold text-slate-100 mb-3 leading-relaxed">
                       {line}
                     </div>
                   )}
-                  
-                  {/* Only render English div if English exists */}
                   {english && (
                     <div className="text-slate-500 group-hover:text-slate-300 transition-colors text-lg italic">
                       {english}
@@ -114,8 +107,20 @@ useEffect(() => {
                 </div>
               );
             })}
-           </div>
-        </div>
+           </div> 
+           
+           {/* --- NEW CREDIT SECTION IS HERE --- */}
+           {song.translation_credit && (
+             <div className="mt-8 pt-6 border-t border-white/5 text-center">
+               <p className="text-sm text-slate-500">
+                 Translation provided by <span className="text-slate-300 font-medium">{song.translation_credit}</span>
+               </p>
+             </div>
+           )}
+           {/* ---------------------------------- */}
+
+        </div> 
+        {/* ^ End of Left Column */}
 
         {/* 3. MEDIA COLUMN (Right - 1/3 width, Sticky) */}
         <div className="lg:col-span-1">
@@ -146,7 +151,7 @@ useEffect(() => {
                 No video available
               </div>
             )}
-
+            
             {/* Additional Info Card */}
             <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
               <div className="flex justify-between items-center mb-4">
@@ -157,19 +162,19 @@ useEffect(() => {
               </div>
               <div className="space-y-3 text-sm">
                 <div className="flex flex-col gap-2">
-  <span className="text-slate-500 text-sm">Tags</span>
-  <div className="flex flex-wrap gap-2">
-    {song.tags && song.tags.length > 0 ? (
-      song.tags.map((tag, i) => (
-        <span key={i} className="text-xs bg-slate-800 text-primary px-2 py-1 rounded border border-slate-700">
-          #{tag}
-        </span>
-      ))
-    ) : (
-      <span className="text-slate-600 text-sm italic">No tags added</span>
-    )}
-  </div>
-</div>
+                  <span className="text-slate-500 text-sm">Tags</span>
+                  <div className="flex flex-wrap gap-2">
+                    {song.tags && song.tags.length > 0 ? (
+                      song.tags.map((tag, i) => (
+                        <span key={i} className="text-xs bg-slate-800 text-primary px-2 py-1 rounded border border-slate-700">
+                          #{tag}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-slate-600 text-sm italic">No tags added</span>
+                    )}
+                  </div>
+                </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Added By</span>
                   <span className="text-slate-300">{song.submitted_by || "Community"}</span>

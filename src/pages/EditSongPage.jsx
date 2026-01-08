@@ -24,7 +24,8 @@ const LyricsEditor = ({ label, name, value, onChange, placeholder }) => {
         {label} <span className="text-xs font-normal text-slate-600">({lineCount} lines)</span>
       </label>
       
-      <div className="relative flex border border-slate-700 rounded-xl overflow-hidden bg-slate-900 focus-within:border-emerald-500 transition-colors">
+      {/* Blue border focus */}
+      <div className="relative flex border border-slate-700 rounded-xl overflow-hidden bg-slate-900 focus-within:border-blue-500 transition-colors">
         <div className="bg-slate-800 text-slate-500 text-right pr-3 pt-4 font-mono text-sm leading-6 select-none w-10 flex-shrink-0 border-r border-slate-700">
           <pre>{lineNumbers}</pre>
         </div>
@@ -44,17 +45,19 @@ const LyricsEditor = ({ label, name, value, onChange, placeholder }) => {
 };
 
 const EditSongPage = () => {
-  const { id } = useParams(); // Keep using ID for database lookups (it's safer)
+  const { id } = useParams(); // Keep ID for safe database lookups
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   
   const [tags, setTags] = useState([]);
 
+  // 1. Added translation_credit to state
   const [formData, setFormData] = useState({
     title: '', artist: '', artist_chinese: '', cover_url: '', youtube_url: '', 
-    category: 'pop', slug: '', // We store the slug here so we can use it for navigation
-    lyrics_chinese: '', lyrics_pinyin: '', lyrics_english: ''
+    category: 'pop', slug: '', 
+    lyrics_chinese: '', lyrics_pinyin: '', lyrics_english: '',
+    translation_credit: '' 
   });
 
   // Fetch existing data
@@ -79,7 +82,7 @@ const EditSongPage = () => {
     e.preventDefault();
     setLoading(true);
     
-    // Update the song (including tags)
+    // Update song with new data
     const { error } = await supabase
       .from('songs')
       .update({ 
@@ -91,7 +94,7 @@ const EditSongPage = () => {
     if (error) {
       alert('Error updating: ' + error.message);
     } else {
-      // FIXED: Navigate to the SLUG, not the ID
+      // Navigate to the pretty URL (Slug)
       navigate(`/song/${formData.slug}`);
     }
     
@@ -104,7 +107,6 @@ const EditSongPage = () => {
     <div className="min-h-screen bg-slate-950 p-6 md:p-12">
       <div className="max-w-[1600px] mx-auto">
         
-        {/* FIXED: The "Cancel" button now uses formData.slug instead of id */}
         <button 
           onClick={() => navigate(`/song/${formData.slug}`)} 
           className="flex items-center text-slate-400 hover:text-white mb-6"
@@ -117,14 +119,16 @@ const EditSongPage = () => {
         <form onSubmit={handleUpdate} className="space-y-8">
           {/* Metadata Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
+            
+            {/* COLUMN 1 */}
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="text-slate-400 text-sm">Song Title</label>
-                <input name="title" value={formData.title} onChange={handleChange} className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-white w-full" />
+                <input name="title" value={formData.title} onChange={handleChange} className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-white w-full focus:border-blue-500 outline-none" />
               </div>
               <div className="space-y-2">
                 <label className="text-slate-400 text-sm">Artist</label>
-                <input name="artist" value={formData.artist} onChange={handleChange} className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-white w-full" />
+                <input name="artist" value={formData.artist} onChange={handleChange} className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-white w-full focus:border-blue-500 outline-none" />
               </div>
               
               {/* Tags Input */}
@@ -132,22 +136,38 @@ const EditSongPage = () => {
                  <label className="text-slate-400 text-sm">Tags</label>
                  <TagInput tags={tags} setTags={setTags} placeholder="Add tags (Pop, Ballad, etc.)" />
               </div>
+
+              {/* 2. Added Translation Credit Input Here */}
+              <div className="space-y-2">
+                <label className="text-slate-400 text-sm">Translation Credit (Optional)</label>
+                <input 
+                  name="translation_credit" 
+                  placeholder="e.g. Translated by @YourName"
+                  value={formData.translation_credit || ''} 
+                  onChange={handleChange} 
+                  className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-white w-full placeholder:text-slate-600 focus:border-blue-500 outline-none" 
+                />
+              </div>
             </div>
             
+            {/* COLUMN 2 */}
             <div className="space-y-4">
               <div className="space-y-2">
+                <label className="text-slate-400 text-sm">Artist (Chinese)</label>
+                <input name="artist_chinese" value={formData.artist_chinese || ''} onChange={handleChange} className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-white w-full focus:border-blue-500 outline-none" />
+              </div>
+              <div className="space-y-2">
                 <label className="text-slate-400 text-sm">Cover Image URL</label>
-                <input name="cover_url" value={formData.cover_url || ''} onChange={handleChange} className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-white w-full" />
+                <input name="cover_url" value={formData.cover_url || ''} onChange={handleChange} className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-white w-full focus:border-blue-500 outline-none" />
               </div>
               <div className="space-y-2">
                 <label className="text-slate-400 text-sm">Youtube URL</label>
-                <input name="youtube_url" value={formData.youtube_url || ''} onChange={handleChange} className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-white w-full" />
+                <input name="youtube_url" value={formData.youtube_url || ''} onChange={handleChange} className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-white w-full focus:border-blue-500 outline-none" />
               </div>
               
-              {/* Slug Editor (Optional - Helpful if you want to change the URL manually) */}
               <div className="space-y-2">
-                <label className="text-slate-400 text-sm">URL Slug</label>
-                <input name="slug" value={formData.slug || ''} onChange={handleChange} className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-slate-300 w-full font-mono text-xs" />
+                <label className="text-slate-400 text-sm">URL Slug (Advanced)</label>
+                <input name="slug" value={formData.slug || ''} onChange={handleChange} className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-slate-300 w-full font-mono text-xs focus:border-blue-500 outline-none" />
               </div>
             </div>
           </div>
@@ -160,7 +180,8 @@ const EditSongPage = () => {
           </div>
 
           <div className="fixed bottom-6 right-6 z-50">
-             <button disabled={loading} className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-8 rounded-full shadow-2xl flex items-center gap-2 transition-transform hover:scale-105">
+             {/* Updated button color to Blue */}
+             <button disabled={loading} className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-full shadow-2xl flex items-center gap-2 transition-transform hover:scale-105">
               <Save className="w-5 h-5" /> {loading ? "Saving..." : "Save Changes"}
             </button>
           </div>
